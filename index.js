@@ -1,22 +1,28 @@
 const express = require("express");
-const PORT = 3000;
-const app = express();
 const mongoose = require("mongoose");
-const authRouter = require("./routes/auth");
 require("dotenv").config();
-app.get("/hello", (req, res) => {
-  res.send("Hello world");
-});
-const DB = process.env.DB;
-mongoose.connect(DB).then(() => {
-  console.log("mongodb connected");
-});
 
-//middleware- to register routes
+const authRouter = require("./routes/auth");
+
+const app = express();
+const PORT = 8080;
+const DB = process.env.DB;
+
+// Middleware
 app.use(express.json());
 app.use(authRouter);
 
-app.listen(PORT, "0.0.0.0", function () {
-  console.log(`server is running on ${PORT} ...`);
-});
-//testing
+// MongoDB Connection
+mongoose
+  .connect(DB)
+  .then(() => {
+    console.log(`MongoDB connected. Server running on port ${PORT}`);
+    
+    // Start the server only after successful DB connection
+    app.listen(PORT, () => {
+      console.log(`Server started on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  }); 
